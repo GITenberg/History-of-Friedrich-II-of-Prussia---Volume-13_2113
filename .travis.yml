@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: qGkXdOipbGSyvcnIv0E6ykxb9wgGsynO6oDjKwTOf9ryffCkF/JRG9KKqHZNC/6HeSm2neJOzu9DWUx3fYLiUZEr3qomFaNNeb9aPMWPMIUyxD9bXNvq5EQn4nyKU8Q0yElH224WNdWMnga15hq1GU5j9CYG0fYB9UK+YfkcPY2o6oftrez+Bsx+hKVbCL3MZ2aRZ7WKUKFx+7Hnk2tJK2zASaY6d6geQfZ4csKQ+/tDa3vLUk9SHoegRHMQY56+2mprlyquu0EgmGYcDdd8zEKbq8yYtv0bHbHE0Sb3iXO8RrKjSGr89wFQnCjGGuYnekOhvDHT3Zlq8mhk+Jy5QQcb8smFBzYvIDckIYHZt3AjjaFXDDkQ0gGhvBuHQ+NB+MAlWVizKA5WFvLSsAAdf12ReuNaoEEZP/06zdHvlth70Q0FA7eawBaS+g4CERAVdVbNqq0Dw+Q692qiNm7QbnKajfvIaHkeyXcgPW49TfkbTP+VGJUrMsU49Awh0URUcXtX2af9XSaux5m/5RqOI6u6yyQXjyswyuiSYKqtXaxzcGArLjhfH8q0NoMJplTO1m1W8zg8Feof72aBFzTVzzAFX6tCOlJDOU93CVoylPtT1iOAmrUiVWM9dJfFYWqLTGfkETNqpOpfxXmJzMBbU7a2CjnL1sJLKpx1wWdpytY=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/History-of-Friedrich-II-of-Prussia---Volume-13_2113
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
